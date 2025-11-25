@@ -8,11 +8,7 @@ export function onMqttMessage(topic, message) {
     const payload = JSON.parse(message.toString());
     logger.info(`MQTT message received on ${topic}`, { payload });
 
-    websocket.emit(config.socketIo.events.data, {
-      topic,
-      data: payload,
-      timestamp: new Date().toISOString(),
-    });
+    websocket.emit(config.socketIo.events.data, payload);
   } catch (err) {
     logger.error(`Failed to parse MQTT message: ${err.message}`, {
       rawMessage: message.toString(),
