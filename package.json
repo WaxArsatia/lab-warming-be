@@ -1,0 +1,47 @@
+{
+  "name": "lab-warming-be",
+  "version": "1.0.0",
+  "description": "MQTT to Socket.IO Bridge Server for DHT11 sensor data",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "lint": "biome lint --write .",
+    "lint:check": "biome lint .",
+    "check": "biome check --write .",
+    "check:ci": "biome check .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WaxArsatia/lab-warming-be.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "imports": {
+    "#config/*": "./src/config/*",
+    "#controllers/*": "./src/controllers/*",
+    "#routes/*": "./src/routes/*",
+    "#services/*": "./src/services/*",
+    "#utils/*": "./src/utils/*"
+  },
+  "bugs": {
+    "url": "https://github.com/WaxArsatia/lab-warming-be/issues"
+  },
+  "homepage": "https://github.com/WaxArsatia/lab-warming-be#readme",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "mqtt": "^5.14.1",
+    "socket.io": "^4.8.1",
+    "winston": "^3.18.3"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.3.7",
+    "nodemon": "^3.1.11"
+  }
+}
