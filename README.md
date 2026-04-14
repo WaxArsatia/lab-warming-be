@@ -1,83 +1,121 @@
 # Lab Warming Backend
 
-MQTT to Socket.IO Bridge Server for DHT11 sensor data streaming.
+Backend service that subscribes to MQTT messages and broadcasts parsed data to Socket.IO clients.
 
-## API Endpoints
+## Overview
 
-### GET `/`
-Returns server information and available endpoints.
+This service:
 
-**Response:**
-```json
-{
-  "message": "MQTT to Socket.IO Bridge Server",
-  "endpoints": { "health": "/health" },
-  "mqtt": { "topic": "sensor/dht11" },
-  "socketIo": {
-    "events": {
-      "data": "sensorData",
-      "error": "sensorError",
-      "status": "mqttStatus"
-    }
-  }
-}
+- Runs an Express HTTP server.
+- Exposes basic health/info endpoints.
+- Connects to an MQTT broker and subscribes to one topic.
+- Emits incoming MQTT payloads to all connected Socket.IO clients.
+
+## Features
+
+- HTTP endpoints:
+  - `GET /`
+  - `GET /health`
+- MQTT subscriber with automatic reconnect.
+- Socket.IO broadcast for data, error, and broker status events.
+- Graceful shutdown handling for `SIGINT` and `SIGTERM`.
+
+## Tech Stack
+
+- Node.js (ES Modules)
+- Express
+- MQTT.js
+- Socket.IO
+- Winston
+- Biome (lint/format)
+
+## Setup and Run
+
+### 1) Install dependencies
+
+```bash
+npm install
 ```
 
-### GET `/health`
-Returns server health status.
+### 2) Create environment file
 
-**Response:**
-```json
-{
-  "status": "ok",
-  "mqtt": {
-    "connected": true,
-    "topic": "sensor/dht11"
-  },
-  "socketIo": {
-    "connectedClients": 2
-  },
-  "timestamp": "2025-11-25T10:30:00.000Z"
-}
+Copy `.env.example` to `.env`, then set your values:
+
+```bash
+cp .env.example .env
 ```
 
-## WebSocket Events
+Required environment variables used by the app:
 
-### Client → Server
-No events needed (receive-only).
+- `NODE_ENV`
+- `PORT`
+- `MQTT_ADDRESS`
+- `MQTT_PORT`
+- `MQTT_USERNAME`
+- `MQTT_PASSWORD`
+- `MQTT_TOPIC`
+- `SOCKETIO_EVENT_DATA`
+- `SOCKETIO_EVENT_ERROR`
+- `SOCKETIO_EVENT_STATUS`
 
-### Server → Client
+Note: MQTT protocol is configured as `mqtts` in code.
 
-#### `sensorData` (or custom via `SOCKETIO_EVENT_DATA`)
-Sensor data from MQTT.
+### 3) Start the server
 
-```json
-{
-  "topic": "sensor/dht11",
-  "data": {
-    "temperature": 25.5,
-    "humidity": 60.2
-  },
-  "timestamp": "2025-11-25T10:30:00.000Z"
-}
+Development:
+
+```bash
+npm run dev
 ```
 
-#### `sensorError` (or custom via `SOCKETIO_EVENT_ERROR`)
-Error when parsing MQTT message.
+Production:
 
-```json
-{
-  "error": "Invalid JSON payload",
-  "rawMessage": "malformed data",
-  "timestamp": "2025-11-25T10:30:00.000Z"
-}
+```bash
+npm start
 ```
 
-#### `mqttStatus` (or custom via `SOCKETIO_EVENT_STATUS`)
-MQTT connection status (sent on client connect).
+## API
 
-```json
-{
-  "connected": true
-}
+### GET /
+
+Returns service metadata, exposed endpoints, MQTT topic, and configured Socket.IO event names.
+
+### GET /health
+
+Returns:
+
+- `status`
+- MQTT connection status and topic
+- connected Socket.IO client count
+- current timestamp
+
+## Socket.IO Events
+
+Server emits these events:
+
+- Data event name from `SOCKETIO_EVENT_DATA` (default: `sensorData`)
+  - Payload: parsed MQTT JSON payload as-is
+- Error event name from `SOCKETIO_EVENT_ERROR` (default: `sensorError`)
+  - Payload:
+    - `error`
+    - `rawMessage`
+    - `timestamp`
+- Status event name from `SOCKETIO_EVENT_STATUS` (default: `mqttStatus`)
+  - Payload:
+    - `connected`
+
+## Project Structure
+
+```text
+src/
+  config/
+  controllers/
+  routes/
+  services/
+  utils/
+  index.js
 ```
+
+## License
+
+ISC
